@@ -13,6 +13,8 @@ import os
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # ======================================================================================================================
+
+
 def evaluate_vae(args, model, train_loader, data_loader, epoch, dir, mode):
     # set loss to 0
     evaluate_loss = 0
@@ -32,9 +34,12 @@ def evaluate_vae(args, model, train_loader, data_loader, epoch, dir, mode):
         # calculate loss function
         loss, RE, KL = model.calculate_loss(x, average=True)
 
-        evaluate_loss += loss.data[0]
-        evaluate_re += -RE.data[0]
-        evaluate_kl += KL.data[0]
+        # evaluate_loss += loss.data[0]
+        # evaluate_re += -RE.data[0]
+        # evaluate_kl += KL.data[0]
+        evaluate_loss += loss.data.item()
+        evaluate_re += -RE.data.item()
+        evaluate_kl += KL.data.item()
 
         # print N digits
         if batch_idx == 1 and mode == 'validation':
@@ -42,9 +47,11 @@ def evaluate_vae(args, model, train_loader, data_loader, epoch, dir, mode):
                 if not os.path.exists(dir + 'reconstruction/'):
                     os.makedirs(dir + 'reconstruction/')
                 # VISUALIZATION: plot real images
-                plot_images(args, data.data.cpu().numpy()[0:9], dir + 'reconstruction/', 'real', size_x=3, size_y=3)
+                plot_images(args, data.data.cpu().numpy()[
+                            0:9], dir + 'reconstruction/', 'real', size_x=3, size_y=3)
             x_mean = model.reconstruct_x(x)
-            plot_images(args, x_mean.data.cpu().numpy()[0:9], dir + 'reconstruction/', str(epoch), size_x=3, size_y=3)
+            plot_images(args, x_mean.data.cpu().numpy()[
+                        0:9], dir + 'reconstruction/', str(epoch), size_x=3, size_y=3)
 
     if mode == 'test':
         # load all data
@@ -106,15 +113,19 @@ def evaluate_vae(args, model, train_loader, data_loader, epoch, dir, mode):
 
         # CALCULATE log-likelihood
         t_ll_s = time.time()
-        log_likelihood_test = model.calculate_likelihood(test_data, dir, mode='test', S=args.S, MB=args.MB)
+        log_likelihood_test = model.calculate_likelihood(
+            test_data, dir, mode='test', S=args.S, MB=args.MB)
         t_ll_e = time.time()
-        print('Test log_likelihood value {:.2f} in time: {:.2f}s'.format(log_likelihood_test, t_ll_e - t_ll_s))
+        print('Test log_likelihood value {:.2f} in time: {:.2f}s'.format(
+            log_likelihood_test, t_ll_e - t_ll_s))
 
         # CALCULATE log-likelihood
         t_ll_s = time.time()
-        log_likelihood_train = 0. #model.calculate_likelihood(full_data, dir, mode='train', S=args.S, MB=args.MB)) #commented because it takes too much time
+        # model.calculate_likelihood(full_data, dir, mode='train', S=args.S, MB=args.MB)) #commented because it takes too much time
+        log_likelihood_train = 0.
         t_ll_e = time.time()
-        print('Train log_likelihood value {:.2f} in time: {:.2f}s'.format(log_likelihood_train, t_ll_e - t_ll_s))
+        print('Train log_likelihood value {:.2f} in time: {:.2f}s'.format(
+            log_likelihood_train, t_ll_e - t_ll_s))
 
     # calculate final loss
     evaluate_loss /= len(data_loader)  # loss function already averages over batch size

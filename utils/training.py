@@ -7,6 +7,8 @@ import numpy as np
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # ======================================================================================================================
+
+
 def train_vae(epoch, args, train_loader, model, optimizer):
     # set loss to 0
     train_loss = 0
@@ -19,7 +21,7 @@ def train_vae(epoch, args, train_loader, model, optimizer):
     if args.warmup == 0:
         beta = 1.
     else:
-        beta = 1.* epoch / args.warmup
+        beta = 1. * epoch / args.warmup
         if beta > 1.:
             beta = 1.
     print('beta: {}'.format(beta))
@@ -43,9 +45,12 @@ def train_vae(epoch, args, train_loader, model, optimizer):
         # optimization
         optimizer.step()
 
-        train_loss += loss.data[0]
-        train_re += -RE.data[0]
-        train_kl += KL.data[0]
+        # train_loss += loss.data[0]
+        # train_re += -RE.data[0]
+        # train_kl += KL.data[0]
+        train_loss += loss.data.item()
+        train_re += -RE.data.item()
+        train_kl += KL.data.item()
 
     # calculate final loss
     train_loss /= len(train_loader)  # loss function already averages over batch size
